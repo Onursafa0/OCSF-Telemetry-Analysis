@@ -1,0 +1,65 @@
+// Align card styles with theme variables
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  transition: var(--theme-transition);
+
+  .card-header {
+    background-color: var(--primary-color);
+    color: var(--primary-text-contrast);
+    border-bottom: 1px solid var(--border-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .card-body {
+    .form-label {
+      color: var(--heading-color);
+    }
+    .text-muted {
+      color: var(--text-muted-color) !important;
+    }
+  }
+
+  .card-footer {
+    background-color: var(--card-header-bg);
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+// Align form elements with theme variables
+.form-check-input {
+  background-color: var(--input-bg);
+  border-color: var(--input-border-color);
+  &:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+}
+
+.form-select, .form-control {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border-color);
+  color: var(--input-text-color);
+  &:focus {
+    background-color: var(--input-bg);
+    color: var(--input-text-color);
+    border-color: var(--input-focus-border-color);
+  }
+}
+
+// Align button styles with theme variables
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--primary-text-contrast);
+}
+
+// Align code preview area with theme variables
+pre {
+  background-color: var(--page-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted-color);
+  white-space: pre-wrap;
+  word-break: break-all;
+}

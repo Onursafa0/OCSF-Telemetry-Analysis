@@ -1,0 +1,22 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-gradient-custom shadow-sm">
+  <div class="container-fluid">
+
+    <div class="d-flex align-items-center gap-3">
+      <a class="navbar-brand mb-0 h1" routerLink="/">{{'TELEMETRY' | translate }}</a>
+      <a class="navbar-brand mb-0 h1" routerLink="/data-generator">{{'DATA_GENERATOR' | translate }}</a>
+      <a class="navbar-brand mb-0 h1" routerLink="/graph">{{'GRAPH_VISUALIZER' | translate }}</a>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-light btn-sm" (click)="switchLang('tr')">TR</button>
+      <button class="btn btn-outline-light btn-sm" (click)="switchLang('en')">EN</button>
+
+      <select class="form-select form-select-sm" (change)="onThemeChange($event)" title="Select theme">
+        <option value="theme-light">☀️ Light</option>
+        <option value="theme-dark">🌙 Dark</option>
+        <option value="theme-blue">🔵 Blue</option>
+        <option value="theme-green">🟢 Green</option>
+      </select>
+    </div>
+  </div>
+</nav>

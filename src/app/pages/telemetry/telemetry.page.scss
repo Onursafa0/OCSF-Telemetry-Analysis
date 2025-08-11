@@ -1,0 +1,124 @@
+// General Page Container
+.telemetry-page-container {
+  background-color: var(--page-bg);
+  min-height: 100vh;
+  transition: var(--theme-transition);
+}
+
+// File Upload Card
+.file-upload-card {
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+
+  .card-title {
+    color: var(--heading-color);
+  }
+  .card-subtitle {
+    color: var(--text-muted-color);
+  }
+
+  // For drag-over effect
+  &.drag-over {
+    background-color: rgba(var(--primary-color), 0.1);
+    .custom-file-upload {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+  }
+}
+
+// Custom File Upload Button
+input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  border: 2px dashed var(--primary-color);
+  color: var(--primary-color);
+  background-color: transparent;
+  display: inline-block;
+  padding: 12px 24px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 400px;
+
+  i {
+    margin-right: 8px;
+  }
+
+  &:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+    border-style: solid;
+  }
+}
+
+.file-name-display {
+  color: var(--text-muted-color);
+  font-style: italic;
+}
+
+// General Card Styles
+.telemetry-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: var(--theme-transition), transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+  }
+
+  .card-header {
+    background-color: var(--card-header-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--heading-color);
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+// Form Elements
+.form-control, .form-select {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border-color);
+  color: var(--input-text-color);
+  &:focus {
+    background-color: var(--input-bg);
+    color: var(--input-text-color);
+    border-color: var(--input-focus-border-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), 0.25);
+  }
+}
+
+// Chart Container Styles
+.chart-container {
+  position: relative;
+  height: 350px;
+  width: 100%;
+}
+
+.echart {
+  height: 100%;
+  width: 100%;
+}
+
+// Styles for No Data Messages
+.no-data-container {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  p {
+    color: var(--text-muted-color);
+  }
+}

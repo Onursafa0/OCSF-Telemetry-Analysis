@@ -1,0 +1,171 @@
+<div class="container mt-4">
+  <!-- Page Title -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h4>{{'GRAPH_TITLE' | translate }} {{ className }}</h4>
+    </div>
+    <div class="card-body">
+      <p class="card-text mb-0">
+        {{'GRAPH_DESC-1' | translate }} <strong>{{ className }}</strong> {{'GRAPH_DESC-2' | translate }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div *ngIf="hasData; else noDataTemplate" class="position-relative">
+    
+    <!-- Filtering Panel -->
+    <div class="card shadow-sm mb-4" *ngIf="availableNodeTypes.length > 0">
+      <div class="card-header">
+        <strong>{{'FILTERS' | translate }}</strong>
+      </div>
+      <div class="card-body filter-controls">
+        <div class="form-check form-check-inline" *ngFor="let type of availableNodeTypes">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [id]="'filter-' + type"
+            [checked]="selectedNodeTypes.has(type)"
+            (change)="onFilterChange(type, $event)"
+          />
+          <label class="form-check-label" [for]="'filter-' + type">{{ type | titlecase }}</label>
+        </div>
+      </div>
+       <div class="card-footer bg-light">
+          <button class="btn btn-sm btn-outline-secondary me-2" (click)="selectAllFilters()">{{'SELECT_ALL' | translate }}</button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="deselectAllFilters()">{{'DESELECT_ALL' | translate }}</button>
+        </div>
+    </div>
+
+    <!-- Data Truncation Warning -->
+    <div *ngIf="isDataTruncated" class="alert alert-warning">
+      <strong>Performance Warning:</strong> The graph contains too many nodes. To improve readability, only the first {{ displayNodes.length }} nodes are shown. Please use filters to see more details.
+    </div>
+
+    <div *ngIf="displayNodes.length > 0; else noVisibleNodesTemplate" class="graph-container-wrapper" #graphWrapper (mouseleave)="onMouseLeaveGraph()">
+      <div class="graph-container card shadow-sm">
+        <ngx-graph
+          *ngIf="isGraphVisible"
+          class="chart-container"
+          [nodes]="displayNodes"
+          [links]="displayLinks"
+          [update$]="update$"
+          [curve]="curve"
+          [layout]="layout"
+          [layoutSettings]="layoutSettings"
+          [autoCenter]="true"
+          [autoZoom]="true"
+          (select)="onNodeClick($event)"
+        >
+          <!-- Node Template -->
+          <ng-template #nodeTemplate let-node>
+            <svg:g 
+              class="node-group"
+              (mouseenter)="onNodeMouseEnter($event, node)"
+              (mouseleave)="onNodeMouseLeave()"
+              [class.highlighted]="highlightedNodes.has(node.id)"
+              [class.dimmed]="highlightedNodes.size > 0 && !highlightedNodes.has(node.id)"
+            >
+              <svg:rect
+                [attr.width]="node.dimension.width"
+                [attr.height]="node.dimension.height"
+                [attr.fill]="getNodeColor(node)"
+                rx="10"
+                ry="10"
+              />
+              <svg:text class="node-label" [attr.x]="node.dimension.width / 2" [attr.y]="node.dimension.height / 2">
+                {{ node.label }}
+              </svg:text>
+            </svg:g>
+          </ng-template>
+
+          <!-- Link/Edge Template -->
+          <ng-template #linkTemplate let-link>
+            <svg:g 
+              class="edge-group"
+              [class.highlighted]="highlightedLinks.has(link.id)"
+              [class.dimmed]="highlightedNodes.size > 0 && !highlightedLinks.has(link.id)"
+            >
+              <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+              <svg:text class="edge-label" text-anchor="middle">
+                <textPath [attr.href]="'#' + link.id" startOffset="50%">
+                  {{ link.label }}
+                </textPath>
+              </svg:text>
+            </svg:g>
+          </ng-template>
+
+          <!-- Arrow Definition -->
+          <ng-template #defsTemplate>
+            <svg:defs>
+              <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="6" markerHeight="6" orient="auto">
+                <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+              </svg:marker>
+            </svg:defs>
+          </ng-template>
+        </ngx-graph>
+      </div>
+      
+      <!-- Hover Tooltip -->
+      <div *ngIf="tooltip.visible && tooltip.data" class="tooltip-container" [style.left.px]="tooltip.x" [style.top.px]="tooltip.y">
+        <div class="tooltip-header">
+          <i class="icon" [ngClass]="getIconForNodeType(tooltip.data.type)"></i>
+          <span>{{ tooltip.data.label }}</span>
+        </div>
+        <div class="tooltip-body">
+          <div class="tooltip-info-line">
+            <span>{{ tooltip.data.details }}</span>
+          </div>
+          <hr>
+          <div class="tooltip-info-line">
+            <i class="icon fas fa-bell"></i>
+            <span>Alerts</span>
+            <span class="badge bg-secondary">{{ tooltip.data.alerts }}</span>
+          </div>
+          <div class="tooltip-info-line">
+            <i class="icon fas fa-shield-alt"></i>
+            <span>Exposures</span>
+            <span class="badge bg-secondary">{{ tooltip.data.exposures }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- No Data After Filtering Template -->
+    <ng-template #noVisibleNodesTemplate>
+       <div class="alert alert-info mt-4">
+        {{'NO_VISIBLE_NODES' | translate }}
+      </div>
+    </ng-template>
+
+  </div>
+
+  <!-- No Data Template -->
+  <ng-template #noDataTemplate>
+    <div class="alert alert-info mt-4">
+      {{'NO_DATA_PROMPT' | translate }}
+    </div>
+  </ng-template>
+
+  <!-- Node Detail Panel (Right Side) -->
+  <div class="details-panel" [class.is-visible]="selectedNode">
+    <button class="close-btn" (click)="closeDetailsPanel()" title="Close">&times;</button>
+    <h5 class="mb-3">{{'NODE_DETAILS' | translate }}</h5>
+    <div *ngIf="selectedNode" class="details-content">
+      <p><strong>{{'LABEL' | translate }}</strong> {{ selectedNode.label }}</p>
+      <p><strong>{{'TYPE' | translate }}</strong> {{ selectedNode.data.type | titlecase }}</p>
+      <hr>
+      <div *ngIf="selectedNodeOcsfData">
+        <h6>{{'OCSF_DATA' | translate }}</h6>
+        <div class="ocsf-details">
+          <div *ngFor="let item of selectedNodeOcsfData | keyvalue" class="detail-item">
+            <strong class="detail-key">{{ item.key }}:</strong>
+            <span *ngIf="!isObject(item.value)" class="detail-value">{{ item.value }}</span>
+            <span *ngIf="isObject(item.value)" class="detail-value object-value" title="{{ item.value | json }}">[Object]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

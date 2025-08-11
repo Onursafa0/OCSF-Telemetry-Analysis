@@ -1,0 +1,142 @@
+<div class="container-fluid p-4 telemetry-page-container">
+  <!-- Page Title and File Upload -->
+  <div class="card shadow-sm mb-4 file-upload-card" [class.drag-over]="isDragging">
+    <div class="card-body text-center">
+      <h4 class="card-title">{{ 'TELEMETRY_ANALYSIS' | translate }}</h4>
+      <p class="card-subtitle mb-3 text-muted">{{ 'LOAD_AND_VISUALIZE_OCSF_DATA' | translate }}</p>
+      
+      <label for="file-upload" class="custom-file-upload">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <span *ngIf="!isDragging">{{ 'CHOOSE_JSON_FILE_OR_DRAG' | translate }}</span>
+        <span *ngIf="isDragging">{{ 'DROP_FILE_HERE' | translate }}</span>
+      </label>
+      <input id="file-upload" type="file" accept=".json" (change)="onFileSelected($event)" />
+      
+      <div *ngIf="fileName" class="file-name-display mt-2">{{ fileName }}</div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+      <div *ngIf="rawData.length > 0 && !errorMessage" class="alert alert-success mt-3">
+        {{ rawData.length }} {{ 'RECORDS_LOADED_SUCCESSFULLY' | translate }}.
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="card shadow-sm mb-4 telemetry-card" *ngIf="rawData.length > 0">
+    <div class="card-header">
+      <h5 class="card-title mb-0"><i class="fas fa-filter me-2"></i>{{ 'FILTERS' | translate }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 align-items-center">
+        <div class="col-xl-2 col-md-4 col-sm-6">
+          <input type="date" class="form-control" [(ngModel)]="filter.dateFrom" (change)="onFilterChange()" placeholder="Start Date">
+        </div>
+        <div class="col-xl-2 col-md-4 col-sm-6">
+          <input type="date" class="form-control" [(ngModel)]="filter.dateTo" (change)="onFilterChange()" placeholder="End Date">
+        </div>
+        <div class="col-xl-2 col-md-4 col-sm-6">
+          <select class="form-select" [(ngModel)]="filter.class_uid" (change)="onFilterChange()" title="{{ 'FILTER_BY_CLASS' | translate }}" [attr.aria-label]="'FILTER_BY_CLASS' | translate">
+            <option value="">{{ 'ALL_CLASSES' | translate }}</option>
+            <option *ngFor="let c of uniqueClassUids" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+        <div class="col-xl-2 col-md-4 col-sm-6">
+          <select class="form-select" [(ngModel)]="filter.user" (change)="onFilterChange()" title="{{ 'FILTER_BY_USER' | translate }}" [attr.aria-label]="'FILTER_BY_USER' | translate">
+            <option value="">{{ 'ALL_USERS' | translate }}</option>
+            <option *ngFor="let u of uniqueUsers" [value]="u">{{ u }}</option>
+          </select>
+        </div>
+        <div class="col-xl-2 col-md-4 col-sm-6">
+          <select class="form-select" [(ngModel)]="filter.severity" (change)="onFilterChange()" title="{{ 'FILTER_BY_SEVERITY' | translate }}" [attr.aria-label]="'FILTER_BY_SEVERITY' | translate">
+            <option value="">{{ 'ALL_LEVELS' | translate }}</option>
+            <option *ngFor="let s of uniqueSeverities" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+        <div class="col-xl-2 col-md-4 col-sm-6 text-end">
+          <button class="btn btn-outline-secondary w-100" (click)="resetFilters()">{{ 'CLEAR_FILTERS' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Display Area -->
+  <div *ngIf="filteredData.length > 0; else noDataTemplate">
+    <div class="row g-4">
+      <!-- Time Series Chart -->
+      <div class="col-12">
+        <div class="card shadow-sm h-100 telemetry-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>{{ 'EVENT_VOLUME_BY_SEVERITY' | translate }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas baseChart id="severityChart" [data]="severityChartData" [options]="severityChartOptions" type="bar"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category and Heatmap -->
+      <div class="col-lg-4 col-md-12">
+        <div class="card shadow-sm h-100 telemetry-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-pie-chart me-2"></i>{{ 'EVENT_CATEGORY_DISTRIBUTION' | translate }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas baseChart id="categoryChart" [data]="categoryChartData" [options]="categoryChartOptions" type="doughnut"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8 col-md-12">
+        <div class="card shadow-sm h-100 telemetry-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-th me-2"></i>{{ 'DAILY_EVENT_HEATMAP' | translate }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <div echarts [options]="heatmapOptions" class="echart" (chartInit)="onChartInit($event)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Active Users and Reporting -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm h-100 telemetry-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-users me-2"></i>{{ 'TOP_ACTIVE_USERS' | translate }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas baseChart id="topUsersChart" [data]="topUsersChartData" [options]="horizontalBarOptions" type="bar"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card shadow-sm mb-4 telemetry-card h-100">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-file-export me-2"></i>{{ 'REPORTING' | translate }}</h5>
+          </div>
+          <div class="card-body d-flex flex-column justify-content-center">
+            <div class="d-grid gap-3">
+              <button class="btn btn-danger btn-lg" (click)="downloadPdf()"><i class="fas fa-file-pdf me-2"></i>{{ 'DOWNLOAD_PDF' | translate }}</button>
+              <button class="btn btn-success btn-lg" (click)="downloadCsv()"><i class="fas fa-file-csv me-2"></i>{{ 'DOWNLOAD_CSV_DATA' | translate }}</button>
+              <button class="btn btn-info btn-lg" (click)="downloadJson()"><i class="fas fa-file-code me-2"></i>{{ 'DOWNLOAD_JSON_DATA' | translate }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Data Template -->
+  <ng-template #noDataTemplate>
+    <div class="text-center p-5 no-data-container" *ngIf="rawData.length > 0">
+      <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+      <p class="text-muted">{{ 'NO_DATA_FOR_FILTERS' | translate }}</p>
+    </div>
+  </ng-template>
+</div>

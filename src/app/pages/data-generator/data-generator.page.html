@@ -1,0 +1,110 @@
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4>{{ 'DATA_GENERATOR' | translate }}</h4>
+    </div>
+    <div class="card-body">
+
+      <!-- Generation Mode Selection -->
+      <div class="mb-4">
+        <label class="form-label fw-bold">{{ 'GENERATION_MODE' | translate }}</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="generationMode" id="modeSingle" value="single" [(ngModel)]="generationMode">
+          <label class="form-check-label" for="modeSingle">
+            {{ 'SINGLE_CLASS_MODE' | translate }} <small class="text-muted">({{ 'SINGLE_CLASS_DESC' | translate }})</small>
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="generationMode" id="modeScenario" value="scenario" [(ngModel)]="generationMode">
+          <label class="form-check-label" for="modeScenario">
+            {{ 'SCENARIO_MODE' | translate }} <small class="text-muted">({{ 'SCENARIO_MODE_DESC' | translate }})</small>
+          </label>
+        </div>
+      </div>
+
+      <!-- Single Class Mode Settings -->
+      <div *ngIf="generationMode === 'single'">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="mb-3">
+              <label for="ocsfClass" class="form-label">{{ 'OCSF_CLASS' | translate }}</label>
+              <select id="ocsfClass" class="form-select" [(ngModel)]="selectedClassUid">
+                <optgroup *ngFor="let group of ocsfClassGroups" [label]="group.category">
+                  <option *ngFor="let ocsfClass of group.classes" [value]="ocsfClass.uid">
+                    {{ ocsfClass.name }}
+                  </option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="numberOfRecords" class="form-label">{{ 'RECORD_COUNT' | translate }}</label>
+              <input type="number" id="numberOfRecords" class="form-control" [(ngModel)]="numberOfRecords" min="1" max="1000000">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario Mode Settings -->
+      <div *ngIf="generationMode === 'scenario'">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="mb-3">
+              <label for="scenario" class="form-label">{{ 'ATTACK_SCENARIO' | translate }}</label>
+              <select id="scenario" class="form-select" [(ngModel)]="selectedScenarioId">
+                <option *ngFor="let scenario of scenarios" [value]="scenario.id">
+                  {{ scenario.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label for="scenarioScale" class="form-label">{{ 'SCENARIO_SIZE' | translate }}</label>
+              <input type="number" id="scenarioScale" class="form-control" [(ngModel)]="numberOfRecords" min="10" max="10000">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-100" (click)="generateTestData()" [disabled]="isLoading">
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        {{ isLoading ? ('GENERATING_DATA' | translate) : ('GENERATE_DATA' | translate) }}
+      </button>
+
+      <!-- Progress Message Area -->
+      <div *ngIf="isLoading && progressMessage" class="text-center text-muted mt-2">
+        <small>{{ progressMessage }}</small>
+      </div>
+
+      <!-- Area for Error Messages Only -->
+      <div *ngIf="message && messageType === 'danger'" class="alert alert-danger mt-3" role="alert">
+        {{ message }}
+      </div>
+
+      <!-- Combined Result Area -->
+      <div class="card-footer bg-light" *ngIf="generatedData.length > 0 && !isLoading">
+        <div class="d-flex justify-content-between align-items-center">
+          <span>{{ generatedData.length }} {{ 'RECORDS' | translate }} {{ generationTime }}s {{ 'GENERATED_SUCCESSFULLY' | translate }}.</span>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm me-2" (click)="downloadJson()">
+              {{ 'DOWNLOAD_JSON' | translate }}
+            </button>
+            <a routerLink="/graph" class="btn btn-outline-success btn-sm">
+              {{ 'VIEW_GRAPH' | translate }}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- JSON Preview Area -->
+      <div *ngIf="generatedData.length > 0 && !isLoading" class="mt-4">
+        <h5 class="mb-2">{{ 'DATA_PREVIEW_TITLE' | translate }}</h5>
+        <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;"><code>{{ generatedData.slice(0, 10) | json }}</code></pre>
+      </div>
+
+    </div>
+    
+  </div>
+</div>

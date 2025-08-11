@@ -1,0 +1,66 @@
+{
+  "name": "staj-projesi",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/common": "^20.0.0",
+    "@angular/compiler": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@angular/forms": "^20.0.0",
+    "@angular/material": "^20.0.6",
+    "@angular/platform-browser": "^20.0.0",
+    "@angular/router": "^20.0.0",
+    "@ngx-translate/core": "^16.0.4",
+    "@ngx-translate/http-loader": "^16.0.1",
+    "@swimlane/ngx-charts": "^23.0.0-alpha.0",
+    "@swimlane/ngx-graph": "^11.0.0-alpha.0",
+    "bootstrap": "^5.3.7",
+    "chart.js": "^4.5.0",
+    "chartjs-plugin-zoom": "^2.2.0",
+    "d3": "^7.9.0",
+    "dagre": "^0.8.5",
+    "echarts": "^5.6.0",
+    "file-saver": "^2.0.5",
+    "ng2-charts": "^4.1.1",
+    "ngx-echarts": "^20.0.1",
+    "pdfmake": "^0.2.20",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "webcola": "^3.4.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.0.4",
+    "@angular/cli": "^20.0.4",
+    "@angular/compiler-cli": "^20.0.0",
+    "@types/d3-force": "^3.0.10",
+    "@types/d3-shape": "^3.1.7",
+    "@types/file-saver": "^2.0.7",
+    "@types/jasmine": "~5.1.0",
+    "@types/pdfmake": "^0.2.11",
+    "jasmine-core": "~5.7.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "typescript": "~5.8.2"
+  }
+}
